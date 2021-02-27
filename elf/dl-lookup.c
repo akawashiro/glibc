@@ -73,6 +73,8 @@ check_match (const char *const undef_name,
 	     const ElfW(Sym) **const versioned_sym,
 	     int *const num_versions)
 {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
+_dl_debug_printf("%s vs %s\n", strtab + sym->st_name, undef_name);
   unsigned int stt = ELFW(ST_TYPE) (sym->st_info);
   assert (ELF_RTYPE_CLASS_PLT == 1);
   if (__glibc_unlikely ((sym->st_value == 0 /* No value.  */
@@ -366,6 +368,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	     const struct r_found_version *const version, int flags,
 	     struct link_map *skip, int type_class, struct link_map *undef_map)
 {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   size_t n = scope->r_nlist;
   /* Make sure we read the value before proceeding.  Otherwise we
      might use r_list pointing to the initial scope and r_nlist being
@@ -373,9 +376,11 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
      protected by GSCOPE.  A read barrier here might be to expensive.  */
   __asm volatile ("" : "+r" (n), "+m" (scope->r_list));
   struct link_map **list = scope->r_list;
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 
   do
     {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
       const struct link_map *map = list[i]->l_real;
 
       /* Here come the extra test needed for `_dl_lookup_symbol_skip'.  */
@@ -423,24 +428,32 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	  if (__glibc_unlikely ((bitmask_word >> hashbit1)
 				& (bitmask_word >> hashbit2) & 1))
 	    {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	      Elf32_Word bucket = map->l_gnu_buckets[new_hash
 						     % map->l_nbuckets];
 	      if (bucket != 0)
 		{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 		  const Elf32_Word *hasharr = &map->l_gnu_chain_zero[bucket];
 
-		  do
-		    if (((*hasharr ^ new_hash) >> 1) == 0)
+		  do{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
+            // TODO(akawashiro)
+		    // if (((*hasharr ^ new_hash) >> 1) == 0)
+		    if (true)
 		      {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 			symidx = ELF_MACHINE_HASH_SYMIDX (map, hasharr);
 			sym = check_match (undef_name, ref, version, flags,
 					   type_class, &symtab[symidx], symidx,
 					   strtab, map, &versioned_sym,
 					   &num_versions);
-			if (sym != NULL)
+			if (sym != NULL){
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 			  goto found_it;
+            }
 		      }
-		  while ((*hasharr++ & 1u) == 0);
+          }while ((*hasharr++ & 1u) == 0);
 		}
 	    }
 	  /* No symbol found.  */
@@ -448,6 +461,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	}
       else
 	{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	  if (*old_hash == 0xffffffff)
 	    *old_hash = _dl_elf_hash (undef_name);
 
@@ -458,12 +472,15 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	       symidx != STN_UNDEF;
 	       symidx = map->l_chain[symidx])
 	    {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	      sym = check_match (undef_name, ref, version, flags,
 				 type_class, &symtab[symidx], symidx,
 				 strtab, map, &versioned_sym,
 				 &num_versions);
-	      if (sym != NULL)
+	      if (sym != NULL){
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 		goto found_it;
+          }
 	    }
 	}
 
@@ -475,6 +492,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 
       if (sym != NULL)
 	{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	found_it:
 	  /* When UNDEF_MAP is NULL, which indicates we are called from
 	     do_lookup_x on relocation against protected data, we skip
@@ -839,6 +857,8 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 		     const struct r_found_version *version,
 		     int type_class, int flags, struct link_map *skip_map)
 {
+_dl_debug_printf("undef_name = %s\n", undef_name);
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   const uint_fast32_t new_hash = dl_new_hash (undef_name);
   unsigned long int old_hash = 0xffffffff;
   struct sym_val current_value = { NULL, NULL };
@@ -846,16 +866,19 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 
   bump_num_relocations ();
 
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   /* DL_LOOKUP_RETURN_NEWEST does not make sense for versioned
      lookups.  */
   assert (version == NULL || !(flags & DL_LOOKUP_RETURN_NEWEST));
 
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   size_t i = 0;
   if (__glibc_unlikely (skip_map != NULL))
     /* Search the relevant loaded objects for a definition.  */
     while ((*scope)->r_list[i] != skip_map)
       ++i;
 
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   /* Search the relevant loaded objects for a definition.  */
   for (size_t start = i; *scope != NULL; start = 0, ++scope)
     if (do_lookup_x (undef_name, new_hash, &old_hash, *ref,
@@ -863,11 +886,13 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 		     skip_map, type_class, undef_map) != 0)
       break;
 
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   if (__glibc_unlikely (current_value.s == NULL))
     {
       if ((*ref == NULL || ELFW(ST_BIND) ((*ref)->st_info) != STB_WEAK)
 	  && !(GLRO(dl_debug_mask) & DL_DEBUG_UNUSED))
 	{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	  /* We could find no value for a strong reference.  */
 	  const char *reference_name = undef_map ? undef_map->l_name : "";
 	  const char *versionstr = version ? ", version " : "";
@@ -890,18 +915,22 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 		   && ELFW(ST_VISIBILITY) ((*ref)->st_other) == STV_PROTECTED);
   if (__glibc_unlikely (protected != 0))
     {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
       /* It is very tricky.  We need to figure out what value to
 	 return for the protected symbol.  */
       if (type_class == ELF_RTYPE_CLASS_PLT)
 	{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	  if (current_value.s != NULL && current_value.m != undef_map)
 	    {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	      current_value.s = *ref;
 	      current_value.m = undef_map;
 	    }
 	}
       else
 	{
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	  struct sym_val protected_value = { NULL, NULL };
 
 	  for (scope = symbol_scope; *scope != NULL; i = 0, ++scope)
@@ -917,6 +946,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 
 	  if (protected_value.s != NULL && protected_value.m != undef_map)
 	    {
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
 	      current_value.s = *ref;
 	      current_value.m = undef_map;
 	    }
@@ -950,6 +980,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 			&current_value, version, type_class, protected);
 
   *ref = current_value.s;
+_dl_debug_printf("%s:%u \n", __FILE__, __LINE__);
   return LOOKUP_VALUE (current_value.m);
 }
 
