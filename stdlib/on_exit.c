@@ -19,16 +19,24 @@
 #include <stdlib.h>
 #include "exit.h"
 #include <sysdep.h>
+#include "/home/akira/sloader/raw_write.h"
 
 /* Register a function to be called by exit.  */
 int
 __on_exit (void (*func) (int status, void *arg), void *arg)
 {
+  RAW_PRINT_STR("Hello from on_exit.c\n");
   struct exit_function *new;
 
   /* As a QoI issue we detect NULL early with an assertion instead
      of a SIGSEGV at program exit when the handler is run (bug 20544).  */
   assert (func != NULL);
+
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
 
    __libc_lock_lock (__exit_funcs_lock);
   new = __new_exitfn (&__exit_funcs);
@@ -38,6 +46,12 @@ __on_exit (void (*func) (int status, void *arg), void *arg)
       __libc_lock_unlock (__exit_funcs_lock);
       return -1;
     }
+
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
 
 #ifdef PTR_MANGLE
   PTR_MANGLE (func);
