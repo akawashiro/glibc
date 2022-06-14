@@ -39,6 +39,8 @@
 
 #include <elf/dl-tunables.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
 extern void __libc_init_first (int argc, char **argv, char **envp);
 
 #include <tls.h>
@@ -240,6 +242,11 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 		 void (*fini) (void),
 		 void (*rtld_fini) (void), void *stack_end)
 {
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
 #ifndef SHARED
   char **ev = &argv[argc + 1];
 
@@ -284,6 +291,11 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
           GL(dl_phnum) = __ehdr_start.e_phnum;
         }
     }
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
 
   /* Initialize very early so that tunables can use it.  */
   __libc_init_secure ();
@@ -299,9 +311,22 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 
   /* Perform IREL{,A} relocations.  */
   ARCH_SETUP_IREL ();
+  
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
+
 
   /* The stack guard goes into the TCB, so initialize it early.  */
   ARCH_SETUP_TLS ();
+ 
+  RAW_PRINT_STR("Hello from ");
+  RAW_PRINT_STR(__FILE__);
+  RAW_PRINT_STR(":");
+  RAW_PRINT_INT(__LINE__);
+  RAW_PRINT_STR("\n");
 
   /* In some architectures, IREL{,A} relocations happen after TLS setup in
      order to let IFUNC resolvers benefit from TCB information, e.g. powerpc's
