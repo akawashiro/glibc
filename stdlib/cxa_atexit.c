@@ -42,6 +42,7 @@ __internal_atexit (void (*func) (void *), void *arg, void *d,
   assert (func != NULL);
 
   __libc_lock_lock (__exit_funcs_lock);
+  RAW_DEBUG_MESSAGE();
   new = __new_exitfn (listp);
 
   if (new == NULL)
@@ -68,6 +69,7 @@ __internal_atexit (void (*func) (void *), void *arg, void *d,
 int
 __cxa_atexit (void (*func) (void *), void *arg, void *d)
 {
+  RAW_DEBUG_MESSAGE();
   return __internal_atexit (func, arg, d, &__exit_funcs);
 }
 libc_hidden_def (__cxa_atexit)
@@ -100,8 +102,16 @@ __new_exitfn (struct exit_function_list **listp)
   for (l = *listp; l != NULL; p = l, l = l->next)
     {
       RAW_DEBUG_MESSAGE();
+      RAW_PRINT_STR("l->idx=");
+      RAW_PRINT_INT(l->idx);
+      RAW_PRINT_STR("\n");
       for (i = l->idx; i > 0; --i){
       RAW_DEBUG_MESSAGE();
+      RAW_PRINT_STR("i=");
+      RAW_PRINT_INT(i);
+      RAW_PRINT_STR(" l->fns=");
+      RAW_PRINT_HEX(l->fns);
+      RAW_PRINT_STR("\n");
 	if (l->fns[i - 1].flavor != ef_free)
 	  break;
       }
@@ -109,10 +119,12 @@ __new_exitfn (struct exit_function_list **listp)
       if (i > 0)
 	break;
 
+      RAW_DEBUG_MESSAGE();
       /* This block is completely unused.  */
       l->idx = 0;
     }
 
+  RAW_DEBUG_MESSAGE();
   if (l == NULL || i == sizeof (l->fns) / sizeof (l->fns[0]))
     {
       RAW_DEBUG_MESSAGE();
@@ -130,6 +142,7 @@ __new_exitfn (struct exit_function_list **listp)
 	    }
 	}
 
+  RAW_DEBUG_MESSAGE();
       if (p != NULL)
 	{
 	  r = &p->fns[0];
@@ -153,5 +166,6 @@ __new_exitfn (struct exit_function_list **listp)
       ++__new_exitfn_called;
     }
 
+  RAW_DEBUG_MESSAGE();
   return r;
 }

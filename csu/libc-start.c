@@ -242,19 +242,18 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 		 void (*fini) (void),
 		 void (*rtld_fini) (void), void *stack_end)
 {
-  RAW_PRINT_STR("Hello from ");
-  RAW_PRINT_STR(__FILE__);
-  RAW_PRINT_STR(":");
-  RAW_PRINT_INT(__LINE__);
-  RAW_PRINT_STR("\n");
+  RAW_DEBUG_MESSAGE();
 #ifndef SHARED
   char **ev = &argv[argc + 1];
+  RAW_DEBUG_MESSAGE();
 
   __environ = ev;
+  RAW_DEBUG_MESSAGE();
 
   /* Store the lowest stack address.  This is done in ld.so if this is
      the code for the DSO.  */
   __libc_stack_end = stack_end;
+  RAW_DEBUG_MESSAGE();
 
 # ifdef HAVE_AUX_VECTOR
   /* First process the auxiliary vector since we need to find the
@@ -269,6 +268,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
   }
 #  endif
   _dl_aux_init (auxvec);
+  RAW_DEBUG_MESSAGE();
   if (GL(dl_phdr) == NULL)
 # endif
     {
@@ -291,42 +291,33 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
           GL(dl_phnum) = __ehdr_start.e_phnum;
         }
     }
-  RAW_PRINT_STR("Hello from ");
-  RAW_PRINT_STR(__FILE__);
-  RAW_PRINT_STR(":");
-  RAW_PRINT_INT(__LINE__);
-  RAW_PRINT_STR("\n");
+  RAW_DEBUG_MESSAGE();
 
   /* Initialize very early so that tunables can use it.  */
   __libc_init_secure ();
+  RAW_DEBUG_MESSAGE();
 
   __tunables_init (__environ);
+  RAW_DEBUG_MESSAGE();
 
   ARCH_INIT_CPU_FEATURES ();
+  RAW_DEBUG_MESSAGE();
 
   /* Do static pie self relocation after tunables and cpu features
      are setup for ifunc resolvers. Before this point relocations
      must be avoided.  */
   _dl_relocate_static_pie ();
+  RAW_DEBUG_MESSAGE();
 
   /* Perform IREL{,A} relocations.  */
   ARCH_SETUP_IREL ();
-  
-  RAW_PRINT_STR("Hello from ");
-  RAW_PRINT_STR(__FILE__);
-  RAW_PRINT_STR(":");
-  RAW_PRINT_INT(__LINE__);
-  RAW_PRINT_STR("\n");
+  RAW_DEBUG_MESSAGE();
 
 
   /* The stack guard goes into the TCB, so initialize it early.  */
   ARCH_SETUP_TLS ();
  
-  RAW_PRINT_STR("Hello from ");
-  RAW_PRINT_STR(__FILE__);
-  RAW_PRINT_STR(":");
-  RAW_PRINT_INT(__LINE__);
-  RAW_PRINT_STR("\n");
+  RAW_DEBUG_MESSAGE();
 
   /* In some architectures, IREL{,A} relocations happen after TLS setup in
      order to let IFUNC resolvers benefit from TCB information, e.g. powerpc's
@@ -336,8 +327,10 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
   /* Set up the stack checker's canary.  */
   uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard (_dl_random);
 # ifdef THREAD_SET_STACK_GUARD
+  RAW_DEBUG_MESSAGE();
   THREAD_SET_STACK_GUARD (stack_chk_guard);
 # else
+  RAW_DEBUG_MESSAGE();
   __stack_chk_guard = stack_chk_guard;
 # endif
 
@@ -349,11 +342,13 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
   }
 # endif
 
+  RAW_DEBUG_MESSAGE();
   /* Initialize libpthread if linked in.  */
   if (__pthread_initialize_minimal != NULL)
     __pthread_initialize_minimal ();
 
   /* Set up the pointer guard value.  */
+  RAW_DEBUG_MESSAGE();
   uintptr_t pointer_chk_guard = _dl_setup_pointer_guard (_dl_random,
 							 stack_chk_guard);
 # ifdef THREAD_SET_POINTER_GUARD
@@ -364,21 +359,27 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 
 #endif /* !SHARED  */
 
+  RAW_DEBUG_MESSAGE();
   /* Register the destructor of the dynamic linker if there is any.  */
-  if (__glibc_likely (rtld_fini != NULL))
+  if (__glibc_likely (rtld_fini != NULL)){
+    RAW_DEBUG_MESSAGE();
     __cxa_atexit ((void (*) (void *)) rtld_fini, NULL, NULL);
+  }
 
 #ifndef SHARED
   /* Perform early initialization.  In the shared case, this function
      is called from the dynamic loader as early as possible.  */
+  RAW_DEBUG_MESSAGE();
   __libc_early_init (true);
 
   /* Call the initializer of the libc.  This is only needed here if we
      are compiling for the static library in which case we haven't
      run the constructors in `_dl_start_user'.  */
+  RAW_DEBUG_MESSAGE();
   __libc_init_first (argc, argv, __environ);
 
   /* Register the destructor of the statically-linked program.  */
+  RAW_DEBUG_MESSAGE();
   __cxa_atexit (call_fini, NULL, NULL);
 
   /* Some security at this point.  Prevent starting a SUID binary where
