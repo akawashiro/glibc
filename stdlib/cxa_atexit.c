@@ -22,6 +22,7 @@
 #include <libc-lock.h>
 #include "exit.h"
 #include <sysdep.h>
+#include "/home/akira/sloader/raw_write.h"
 
 #undef __cxa_atexit
 
@@ -80,21 +81,30 @@ uint64_t __new_exitfn_called;
 struct exit_function *
 __new_exitfn (struct exit_function_list **listp)
 {
+  RAW_DEBUG_MESSAGE();
+
   struct exit_function_list *p = NULL;
   struct exit_function_list *l;
   struct exit_function *r = NULL;
   size_t i = 0;
+
+  RAW_DEBUG_MESSAGE();
 
   if (__exit_funcs_done)
     /* Exit code is finished processing all registered exit functions,
        therefore we fail this registration.  */
     return NULL;
 
+  RAW_DEBUG_MESSAGE();
+
   for (l = *listp; l != NULL; p = l, l = l->next)
     {
-      for (i = l->idx; i > 0; --i)
+      RAW_DEBUG_MESSAGE();
+      for (i = l->idx; i > 0; --i){
+      RAW_DEBUG_MESSAGE();
 	if (l->fns[i - 1].flavor != ef_free)
 	  break;
+      }
 
       if (i > 0)
 	break;
@@ -105,6 +115,7 @@ __new_exitfn (struct exit_function_list **listp)
 
   if (l == NULL || i == sizeof (l->fns) / sizeof (l->fns[0]))
     {
+      RAW_DEBUG_MESSAGE();
       /* The last entry in a block is used.  Use the first entry in
 	 the previous block if it exists.  Otherwise create a new one.  */
       if (p == NULL)
@@ -127,14 +138,17 @@ __new_exitfn (struct exit_function_list **listp)
     }
   else
     {
+      RAW_DEBUG_MESSAGE();
       /* There is more room in the block.  */
       r = &l->fns[i];
       l->idx = i + 1;
     }
 
+  RAW_DEBUG_MESSAGE();
   /* Mark entry as used, but we don't know the flavor now.  */
   if (r != NULL)
     {
+      RAW_DEBUG_MESSAGE();
       r->flavor = ef_us;
       ++__new_exitfn_called;
     }
