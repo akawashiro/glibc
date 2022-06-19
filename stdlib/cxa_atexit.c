@@ -70,6 +70,19 @@ int
 __cxa_atexit (void (*func) (void *), void *arg, void *d)
 {
   RAW_DEBUG_MESSAGE();
+  // __exit_funcs looks strange
+  RAW_PRINT_STR("&__exit_funcs=0x");
+  RAW_PRINT_HEX(&__exit_funcs);
+  RAW_PRINT_STR(" __exit_funcs=0x");
+  RAW_PRINT_HEX(__exit_funcs);
+  // Failed to de-refernce __exit_funcs->idx
+  // Hmm, sloader failed to relocat exit_function_list initial?
+  RAW_PRINT_STR(" __exit_funcs->idx=0x");
+  RAW_PRINT_HEX(__exit_funcs->idx);
+  // RAW_PRINT_STR(" l->idx=");
+  // RAW_PRINT_INT(l->idx);
+  RAW_PRINT_STR("\n");
+
   return __internal_atexit (func, arg, d, &__exit_funcs);
 }
 libc_hidden_def (__cxa_atexit)
@@ -102,7 +115,9 @@ __new_exitfn (struct exit_function_list **listp)
   for (l = *listp; l != NULL; p = l, l = l->next)
     {
       RAW_DEBUG_MESSAGE();
-      RAW_PRINT_STR("l->idx=");
+      RAW_PRINT_STR("l=");
+      RAW_PRINT_HEX(l);
+      RAW_PRINT_STR(" l->idx=");
       RAW_PRINT_INT(l->idx);
       RAW_PRINT_STR("\n");
       for (i = l->idx; i > 0; --i){
