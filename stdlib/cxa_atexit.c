@@ -82,7 +82,8 @@ int __cxa_atexit(void (*func)(void *), void *arg, void *d) {
 }
 libc_hidden_def(__cxa_atexit)
 
-    static struct exit_function_list initial;
+static struct exit_function_list initial;
+// initial.idx = 0xabcdabcdabcdabcd;
 struct exit_function_list *__exit_funcs = &initial;
 uint64_t __new_exitfn_called;
 
