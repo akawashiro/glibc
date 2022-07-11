@@ -242,11 +242,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 		 void (*fini) (void),
 		 void (*rtld_fini) (void), void *stack_end)
 {
-  RAW_PRINT_STR("Hello from ");
-  RAW_PRINT_STR(__FILE__);
-  RAW_PRINT_STR(":");
-  RAW_PRINT_INT(__LINE__);
-  RAW_PRINT_STR("\n");
+    RAW_DEBUG_MESSAGE();
 #ifndef SHARED
   char **ev = &argv[argc + 1];
 
@@ -361,6 +357,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 
 #endif /* !SHARED  */
 
+    RAW_DEBUG_MESSAGE();
   /* Register the destructor of the dynamic linker if there is any.  */
   if (__glibc_likely (rtld_fini != NULL))
     __cxa_atexit ((void (*) (void *)) rtld_fini, NULL, NULL);
@@ -368,6 +365,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 #ifndef SHARED
   /* Perform early initialization.  In the shared case, this function
      is called from the dynamic loader as early as possible.  */
+    RAW_DEBUG_MESSAGE();
   __libc_early_init (true);
 
   /* Call the initializer of the libc.  This is only needed here if we
@@ -375,8 +373,10 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
      run the constructors in `_dl_start_user'.  */
   __libc_init_first (argc, argv, __environ);
 
+    RAW_DEBUG_MESSAGE();
   /* Register the destructor of the statically-linked program.  */
   __cxa_atexit (call_fini, NULL, NULL);
+    RAW_DEBUG_MESSAGE();
 
   /* Some security at this point.  Prevent starting a SUID binary where
      the standard file descriptors are not opened.  We have to do this
@@ -386,11 +386,15 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
     __libc_check_standard_fds ();
 #endif /* !SHARED */
 
+    RAW_DEBUG_MESSAGE();
   /* Call the initializer of the program, if any.  */
 #ifdef SHARED
-  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
-    GLRO(dl_debug_printf) ("\ninitialize program: %s\n\n", argv[0]);
+    RAW_DEBUG_MESSAGE();
+  // if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
+    // GLRO(dl_debug_printf) ("\ninitialize program: %s\n\n", argv[0]);
 
+  {RAW_DEBUG_MESSAGE();}
+  while(false){
   if (init != NULL)
     /* This is a legacy program which supplied its own init
        routine.  */
@@ -399,18 +403,22 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
     /* This is a current program.  Use the dynamic segment to find
        constructors.  */
     call_init (argc, argv, __environ);
+  }
 
+  {RAW_DEBUG_MESSAGE();}
   /* Auditing checkpoint: we have a new object.  */
-  _dl_audit_preinit (GL(dl_ns)[LM_ID_BASE]._ns_loaded);
+  // _dl_audit_preinit (GL(dl_ns)[LM_ID_BASE]._ns_loaded);
 
-  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS))
-    GLRO(dl_debug_printf) ("\ntransferring control: %s\n\n", argv[0]);
+  {RAW_DEBUG_MESSAGE();}
+  // if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS))
+    // GLRO(dl_debug_printf) ("\ntransferring control: %s\n\n", argv[0]);
 #else /* !SHARED */
   call_init (argc, argv, __environ);
 
   _dl_debug_initialize (0, LM_ID_BASE);
 #endif
 
+    RAW_DEBUG_MESSAGE();
   __libc_start_call_main (main, argc, argv MAIN_AUXVEC_PARAM);
 }
 

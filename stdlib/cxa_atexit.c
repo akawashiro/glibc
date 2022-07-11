@@ -35,6 +35,9 @@ attribute_hidden
 __internal_atexit (void (*func) (void *), void *arg, void *d,
 		   struct exit_function_list **listp)
 {
+    RAW_DEBUG_MESSAGE();
+    return 0;
+
   struct exit_function *new;
 
   /* As a QoI issue we detect NULL early with an assertion instead

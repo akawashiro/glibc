@@ -18,6 +18,7 @@
 
 #include <atomic.h>
 #include <pthreadP.h>
+#include "/home/akira/sloader/raw_write.h"
 
 _Noreturn static void
 __libc_start_call_main (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
@@ -27,10 +28,13 @@ __libc_start_call_main (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 #endif
                         )
 {
+    RAW_DEBUG_MESSAGE();
   int result;
+    RAW_DEBUG_MESSAGE();
 
   /* Memory for the cancellation buffer.  */
   struct pthread_unwind_buf unwind_buf;
+    RAW_DEBUG_MESSAGE();
 
   int not_first_call;
   DIAG_PUSH_NEEDS_COMMENT;
@@ -41,21 +45,29 @@ __libc_start_call_main (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
      the saved signal mask), so that is a false positive.  */
   DIAG_IGNORE_NEEDS_COMMENT (11, "-Wstringop-overflow=");
 #endif
+    RAW_DEBUG_MESSAGE();
   not_first_call = setjmp ((struct __jmp_buf_tag *) unwind_buf.cancel_jmp_buf);
+    RAW_DEBUG_MESSAGE();
   DIAG_POP_NEEDS_COMMENT;
+    RAW_DEBUG_MESSAGE();
   if (__glibc_likely (! not_first_call))
     {
+    RAW_DEBUG_MESSAGE();
       struct pthread *self = THREAD_SELF;
+    RAW_DEBUG_MESSAGE();
 
       /* Store old info.  */
       unwind_buf.priv.data.prev = THREAD_GETMEM (self, cleanup_jmp_buf);
       unwind_buf.priv.data.cleanup = THREAD_GETMEM (self, cleanup);
+    RAW_DEBUG_MESSAGE();
 
       /* Store the new cleanup handler info.  */
       THREAD_SETMEM (self, cleanup_jmp_buf, &unwind_buf);
+    RAW_DEBUG_MESSAGE();
 
       /* Run the program.  */
       result = main (argc, argv, __environ MAIN_AUXVEC_PARAM);
+    RAW_DEBUG_MESSAGE();
     }
   else
     {

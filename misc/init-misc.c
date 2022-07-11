@@ -18,6 +18,7 @@
 
 #include <string.h>
 #include <libc-internal.h>
+#include "/home/akira/sloader/raw_write.h"
 
 char *__progname_full = (char *) "";
 char *__progname = (char *) "";
@@ -28,13 +29,19 @@ weak_alias (__progname, program_invocation_short_name)
 void
 __init_misc (int argc, char **argv, char **envp)
 {
+  RAW_DEBUG_MESSAGE();
   if (argv && argv[0])
     {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR(argv[0]);
+  RAW_PRINT_STR("\n");
       char *p = strrchr (argv[0], '/');
+  RAW_DEBUG_MESSAGE();
       if (p == NULL)
 	__progname = argv[0];
       else
 	__progname = p + 1;
       __progname_full = argv[0];
+  RAW_DEBUG_MESSAGE();
     }
 }
