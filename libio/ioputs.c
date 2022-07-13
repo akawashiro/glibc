@@ -28,12 +28,17 @@
 #include <string.h>
 #include <limits.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
+
 int
 _IO_puts (const char *str)
 {
   int result = EOF;
   size_t len = strlen (str);
+  RAW_DEBUG_MESSAGE();
   _IO_acquire_lock (stdout);
+  RAW_DEBUG_MESSAGE();
 
   if ((_IO_vtable_offset (stdout) != 0
        || _IO_fwide (stdout, -1) == -1)
@@ -41,7 +46,9 @@ _IO_puts (const char *str)
       && _IO_putc_unlocked ('\n', stdout) != EOF)
     result = MIN (INT_MAX, len + 1);
 
+  RAW_DEBUG_MESSAGE();
   _IO_release_lock (stdout);
+  RAW_DEBUG_MESSAGE();
   return result;
 }
 
