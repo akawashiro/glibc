@@ -407,7 +407,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 
   {RAW_DEBUG_MESSAGE();}
   /* Auditing checkpoint: we have a new object.  */
-  // _dl_audit_preinit (GL(dl_ns)[LM_ID_BASE]._ns_loaded);
+  _dl_audit_preinit (GL(dl_ns)[LM_ID_BASE]._ns_loaded);
 
   {RAW_DEBUG_MESSAGE();}
   // if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS))
