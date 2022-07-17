@@ -390,8 +390,8 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
   /* Call the initializer of the program, if any.  */
 #ifdef SHARED
     RAW_DEBUG_MESSAGE();
-  // if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
-    // GLRO(dl_debug_printf) ("\ninitialize program: %s\n\n", argv[0]);
+  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
+    GLRO(dl_debug_printf) ("\ninitialize program: %s\n\n", argv[0]);
 
   {RAW_DEBUG_MESSAGE();}
   while(false){
