@@ -39,6 +39,8 @@ _IO_puts (const char *str)
   RAW_DEBUG_MESSAGE();
   _IO_acquire_lock (stdout);
   RAW_DEBUG_MESSAGE();
+  int vo = _IO_vtable_offset (stdout);
+  RAW_PRINT_INT(vo);
 
   if ((_IO_vtable_offset (stdout) != 0
        || _IO_fwide (stdout, -1) == -1)

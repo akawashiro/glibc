@@ -52,10 +52,10 @@ IFUNC_SELECTOR (void)
   RAW_NOP4();
   RAW_DEBUG_MESSAGE();
 
-  // if (CPU_FEATURE_USABLE_P (cpu_features, AVX2)
-  //     && CPU_FEATURE_USABLE_P (cpu_features, BMI2)
-  //     && CPU_FEATURES_ARCH_P (cpu_features, AVX_Fast_Unaligned_Load))
-  if (cpu_features_AVX2 && cpu_features_BMI2 && cpu_features_AVX_Fast_Unalined_Load)
+  // if (cpu_features_AVX2 && cpu_features_BMI2 && cpu_features_AVX_Fast_Unalined_Load)
+  if (CPU_FEATURE_USABLE_P (cpu_features, AVX2)
+      && CPU_FEATURE_USABLE_P (cpu_features, BMI2)
+      && CPU_FEATURES_ARCH_P (cpu_features, AVX_Fast_Unaligned_Load))
     {
   RAW_DEBUG_MESSAGE();
       if (CPU_FEATURE_USABLE_P (cpu_features, AVX512VL)

@@ -83,5 +83,6 @@ __libc_start_call_main (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 	  INTERNAL_SYSCALL_CALL (exit, 0);
     }
 
+    RAW_DEBUG_MESSAGE();
   exit (result);
 }
