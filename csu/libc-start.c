@@ -126,23 +126,32 @@ apply_irel (void)
 static void
 call_init (int argc, char **argv, char **env)
 {
+    RAW_DEBUG_MESSAGE();
   /* Obtain the main map of the executable.  */
   struct link_map *l = GL(dl_ns)[LM_ID_BASE]._ns_loaded;
+    RAW_DEBUG_MESSAGE();
 
   /* DT_PREINIT_ARRAY is not processed here.  It is already handled in
      _dl_init in elf/dl-init.c.  Also see the call_init function in
      the same file.  */
 
+    RAW_DEBUG_MESSAGE();
+  // TODO (akawashiro)
+  // Hmm, It seems that we must pass the link_map to libc.so, right?
   if (ELF_INITFINI && l->l_info[DT_INIT] != NULL)
     DL_CALL_DT_INIT(l, l->l_addr + l->l_info[DT_INIT]->d_un.d_ptr,
 		    argc, argv, env);
 
+  RAW_DEBUG_MESSAGE();
   ElfW(Dyn) *init_array = l->l_info[DT_INIT_ARRAY];
   if (init_array != NULL)
     {
+    RAW_DEBUG_MESSAGE();
       unsigned int jm
 	= l->l_info[DT_INIT_ARRAYSZ]->d_un.d_val / sizeof (ElfW(Addr));
+    RAW_DEBUG_MESSAGE();
       ElfW(Addr) *addrs = (void *) (init_array->d_un.d_ptr + l->l_addr);
+    RAW_DEBUG_MESSAGE();
       for (unsigned int j = 0; j < jm; ++j)
 	((dl_init_t) addrs[j]) (argc, argv, env);
     }
@@ -394,14 +403,14 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
     GLRO(dl_debug_printf) ("\ninitialize program: %s\n\n", argv[0]);
 
   {RAW_DEBUG_MESSAGE();}
-  while(false){
-  if (init != NULL)
+  if (init != NULL){
     /* This is a legacy program which supplied its own init
        routine.  */
     (*init) (argc, argv, __environ MAIN_AUXVEC_PARAM);
-  else
+  } else {
     /* This is a current program.  Use the dynamic segment to find
        constructors.  */
+RAW_DEBUG_MESSAGE();
     call_init (argc, argv, __environ);
   }
 
@@ -410,8 +419,8 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
   _dl_audit_preinit (GL(dl_ns)[LM_ID_BASE]._ns_loaded);
 
   {RAW_DEBUG_MESSAGE();}
-  // if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS))
-    // GLRO(dl_debug_printf) ("\ntransferring control: %s\n\n", argv[0]);
+  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS))
+    GLRO(dl_debug_printf) ("\ntransferring control: %s\n\n", argv[0]);
 #else /* !SHARED */
   call_init (argc, argv, __environ);
 
