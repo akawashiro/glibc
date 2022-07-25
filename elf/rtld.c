@@ -79,6 +79,8 @@
 # define RTLD_TIMING_SET(var, value) (var) = (value)
 # define RTLD_TIMING_REF(var)        &(var)
 
+#include "/home/akira/sloader/raw_write.h"
+
 static inline void
 rtld_timer_start (hp_timing_t *var)
 {
@@ -754,6 +756,7 @@ static bool tls_init_tp_called;
 static void *
 init_tls (size_t naudit)
 {
+    RAW_DEBUG_MESSAGE();
   /* Number of elements in the static TLS block.  */
   GL(dl_tls_static_nelem) = GL(dl_tls_max_dtv_idx);
 
@@ -1374,6 +1377,7 @@ dl_main (const ElfW(Phdr) *phdr,
 	 ElfW(Addr) *user_entry,
 	 ElfW(auxv_t) *auxv)
 {
+    RAW_DEBUG_MESSAGE();
   struct link_map *main_map;
   size_t file_size;
   char *file;

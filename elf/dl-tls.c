@@ -36,6 +36,8 @@
 #define TUNABLE_NAMESPACE rtld
 #include <dl-tunables.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
 /* Surplus static TLS, GLRO(dl_tls_static_surplus), is used for
 
    - IE TLS in libc.so for all dlmopen namespaces except in the initial
@@ -943,6 +945,7 @@ rtld_hidden_def (__tls_get_addr)
 void *
 __tls_get_addr (GET_ADDR_ARGS)
 {
+    RAW_DEBUG_MESSAGE();
   dtv_t *dtv = THREAD_DTV ();
 
   /* Update is needed if dtv[0].counter < the generation of the accessed
