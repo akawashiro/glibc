@@ -23,6 +23,8 @@
 #endif
 #include <elf/dl-tunables.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
 /* Compile-time constants.  */
 
 #define HEAP_MIN_SIZE (32 * 1024)
@@ -547,10 +549,15 @@ alloc_new_heap  (size_t size, size_t top_pad, size_t pagesize,
       __munmap (p2, max_size);
       return 0;
     }
-
+  RAW_DEBUG_MESSAGE();
   madvise_thp (p2, size);
 
   h = (heap_info *) p2;
+
+  RAW_PRINT_STR("&h->size = ");
+  RAW_PRINT_HEX(&h->size);
+  RAW_PRINT_STR("\n");
+
   h->size = size;
   h->mprotect_size = size;
   h->pagesize = pagesize;

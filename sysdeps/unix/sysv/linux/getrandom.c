@@ -21,11 +21,16 @@
 #include <unistd.h>
 #include <sysdep-cancel.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
 /* Write up to LENGTH bytes of randomness starting at BUFFER.
    Return the number of bytes written, or -1 on error.  */
 ssize_t
 __getrandom (void *buffer, size_t length, unsigned int flags)
 {
+    // TODO
+    RAW_DEBUG_MESSAGE();
+    return length;
   return SYSCALL_CANCEL (getrandom, buffer, length, flags);
 }
 libc_hidden_def (__getrandom)
