@@ -39,11 +39,17 @@
 # define DCIGETTEXT libintl_dcigettext
 #endif
 
+#include "/home/akira/sloader/raw_write.h"
+
+char hogehogefugauga[] = "hogehogefugauga\0";
+
 /* Look up MSGID in the DOMAINNAME message catalog for the current CATEGORY
    locale.  */
 char *
 DCGETTEXT (const char *domainname, const char *msgid, int category)
 {
+    RAW_DEBUG_MESSAGE();
+    return hogehogefugauga;
   return DCIGETTEXT (domainname, msgid, NULL, 0, 0, category);
 }
 

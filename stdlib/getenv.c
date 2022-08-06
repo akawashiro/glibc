@@ -22,6 +22,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "/home/akira/sloader/raw_write.h"
+
 
 /* Return the value of the environment variable NAME.  This implementation
    is tuned a bit in that it assumes no environment variable has an empty
@@ -35,6 +37,8 @@ getenv (const char *name)
   char **ep;
   uint16_t name_start;
 
+  // TODO
+  return NULL;
   if (__environ == NULL || name[0] == '\0')
     return NULL;
 
@@ -81,7 +85,14 @@ getenv (const char *name)
 			       | (((unsigned char *) *ep)[1] << 8));
 #endif
 
-	  if (name_start == ep_start && !strncmp (*ep + 2, name, len)
+      RAW_PRINT_STR("name_start: ");
+      RAW_PRINT_HEX(name_start);
+      RAW_PRINT_STR("\n");
+      RAW_PRINT_STR("ep_start: ");
+      RAW_PRINT_HEX(ep_start);
+      RAW_PRINT_STR("\n");
+	  if (name_start == ep_start && 
+              !strncmp (*ep + 2, name, len)
 	      && (*ep)[len + 2] == '=')
 	    return &(*ep)[len + 3];
 	}

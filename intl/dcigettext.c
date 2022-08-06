@@ -17,6 +17,9 @@
 /* Tell glibc's <string.h> to provide a prototype for mempcpy().
    This must come before <config.h> because <config.h> may include
    <features.h>, and once <features.h> has been included, it's too late.  */
+
+#include "/home/akira/sloader/raw_write.h"
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE	1
 #endif
@@ -483,6 +486,7 @@ DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
 	    int plural, unsigned long int n, int category)
 #endif
 {
+    RAW_DEBUG_MESSAGE();
 #ifndef HAVE_ALLOCA
   struct block_list *block_list = NULL;
 #endif
@@ -1565,6 +1569,8 @@ guess_category_value (int category, const char *categoryname)
 	by POSIX and should not depend on environment variables like
 	"LANGUAGE" or system-dependent information.  We allow such programs
         to use gettext().  */
+  // TODO
+  return "C";
   if (strcmp (locale, "C") == 0)
     return locale;
 
