@@ -33,6 +33,7 @@ __pthread_enable_asynccancel (void)
 {
   struct pthread *self = THREAD_SELF;
   RAW_DEBUG_MESSAGE();
+  RAW_PRINT_PTR(&self->cancelhandling);
   int oldval = atomic_load_relaxed (&self->cancelhandling);
 
   while (1)
