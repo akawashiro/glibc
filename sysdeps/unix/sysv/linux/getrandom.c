@@ -21,7 +21,7 @@
 #include <unistd.h>
 #include <sysdep-cancel.h>
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 /* Write up to LENGTH bytes of randomness starting at BUFFER.
    Return the number of bytes written, or -1 on error.  */

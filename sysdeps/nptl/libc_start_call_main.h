@@ -18,7 +18,7 @@
 
 #include <atomic.h>
 #include <pthreadP.h>
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 _Noreturn static void
 __libc_start_call_main (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),

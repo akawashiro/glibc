@@ -22,7 +22,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 
 /* Return the value of the environment variable NAME.  This implementation

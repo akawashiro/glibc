@@ -22,7 +22,7 @@
 #include <libc-lock.h>
 #include "exit.h"
 #include <sysdep.h>
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 #undef __cxa_atexit
 

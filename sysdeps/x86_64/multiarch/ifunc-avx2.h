@@ -18,7 +18,7 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <init-arch.h>
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 extern __typeof (REDIRECT_NAME) OPTIMIZE (sse2) attribute_hidden;
 extern __typeof (REDIRECT_NAME) OPTIMIZE (avx2) attribute_hidden;

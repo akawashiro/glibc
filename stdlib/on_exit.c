@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include "exit.h"
 #include <sysdep.h>
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 /* Register a function to be called by exit.  */
 int

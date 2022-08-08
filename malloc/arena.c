@@ -23,7 +23,7 @@
 #endif
 #include <elf/dl-tunables.h>
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 /* Compile-time constants.  */
 
@@ -507,6 +507,7 @@ alloc_new_heap  (size_t size, size_t top_pad, size_t pagesize,
   p2 = MAP_FAILED;
   if (aligned_heap_area)
     {
+        RAW_DEBUG_MESSAGE();
       p2 = (char *) MMAP (aligned_heap_area, max_size, PROT_NONE, mmap_flags);
       aligned_heap_area = NULL;
       if (p2 != MAP_FAILED && ((unsigned long) p2 & (max_size - 1)))
@@ -517,6 +518,7 @@ alloc_new_heap  (size_t size, size_t top_pad, size_t pagesize,
     }
   if (p2 == MAP_FAILED)
     {
+        RAW_DEBUG_MESSAGE();
       p1 = (char *) MMAP (0, max_size << 1, PROT_NONE, mmap_flags);
       if (p1 != MAP_FAILED)
         {
@@ -544,7 +546,11 @@ alloc_new_heap  (size_t size, size_t top_pad, size_t pagesize,
             }
         }
     }
-  if (__mprotect (p2, size, mtag_mmap_flags | PROT_READ | PROT_WRITE) != 0)
+  RAW_PRINT_STR("size = ");
+  RAW_PRINT_INT(size);
+  RAW_PRINT_STR("\n");
+  // if (__mprotect (p2, size, mtag_mmap_flags | PROT_READ | PROT_WRITE) != 0)
+  if (__mprotect (p2, max_size, mtag_mmap_flags | PROT_READ | PROT_WRITE) != 0)
     {
       __munmap (p2, max_size);
       return 0;
@@ -731,6 +737,14 @@ detach_arena (mstate replaced_arena)
 {
   if (replaced_arena != NULL)
     {
+        // TODO
+        if(replaced_arena->attached_threads > 0){
+      --replaced_arena->attached_threads;
+      return;
+        }else{
+            return;
+        }
+
       assert (replaced_arena->attached_threads > 0);
       /* The current implementation only detaches from main_arena in
 	 case of allocation failure.  This means that it is likely not

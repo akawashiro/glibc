@@ -39,7 +39,7 @@
 
 #include <elf/dl-tunables.h>
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 extern void __libc_init_first (int argc, char **argv, char **envp);
 

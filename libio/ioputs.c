@@ -28,7 +28,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 
 int

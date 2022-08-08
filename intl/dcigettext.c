@@ -18,7 +18,7 @@
    This must come before <config.h> because <config.h> may include
    <features.h>, and once <features.h> has been included, it's too late.  */
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE	1

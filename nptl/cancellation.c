@@ -20,6 +20,8 @@
 #include "pthreadP.h"
 #include <futex-internal.h>
 
+#include "/home/akira/sloader/raw_write/raw_write.h"
+
 
 /* The next two functions are similar to pthread_setcanceltype() but
    more specialized for the use in the cancelable functions like write().
@@ -30,6 +32,7 @@ int
 __pthread_enable_asynccancel (void)
 {
   struct pthread *self = THREAD_SELF;
+  RAW_DEBUG_MESSAGE();
   int oldval = atomic_load_relaxed (&self->cancelhandling);
 
   while (1)

@@ -79,7 +79,7 @@
 # define RTLD_TIMING_SET(var, value) (var) = (value)
 # define RTLD_TIMING_REF(var)        &(var)
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 static inline void
 rtld_timer_start (hp_timing_t *var)

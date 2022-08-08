@@ -39,7 +39,7 @@
 # define DCIGETTEXT libintl_dcigettext
 #endif
 
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 char hogehogefugauga[] = "hogehogefugauga\0";
 

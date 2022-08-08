@@ -18,7 +18,7 @@
 
 #include <string.h>
 #include <libc-internal.h>
-#include "/home/akira/sloader/raw_write.h"
+#include "/home/akira/sloader/raw_write/raw_write.h"
 
 char *__progname_full = (char *) "";
 char *__progname = (char *) "";
