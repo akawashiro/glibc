@@ -736,6 +736,13 @@ heap_trim (heap_info *heap, size_t pad)
 static void
 detach_arena (mstate replaced_arena)
 {
+    RAW_PRINT_STR("replaced_arena: ");
+    RAW_PRINT_PTR(replaced_arena);
+    RAW_PRINT_STR("\n");
+
+    RAW_PRINT_STR("&(replaced_arena->attached_threads): ");
+    RAW_PRINT_PTR(&(replaced_arena->attached_threads));
+    RAW_PRINT_STR("\n");
   if (replaced_arena != NULL)
     {
         // TODO
@@ -792,7 +799,17 @@ _int_new_arena (size_t size)
 
   RAW_DEBUG_MESSAGE();
   LIBC_PROBE (memory_arena_new, 2, a, size);
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   mstate replaced_arena = thread_arena;
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("replaced_arena: ");
+  RAW_PUTS_PTR(replaced_arena);
+
   thread_arena = a;
   __libc_lock_init (a->mutex);
 
@@ -812,7 +829,11 @@ _int_new_arena (size_t size)
   RAW_DEBUG_MESSAGE();
 
   __libc_lock_lock (free_list_lock);
+
   RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("replaced_arena: ");
+  RAW_PUTS_PTR(replaced_arena);
+
   detach_arena (replaced_arena);
   RAW_DEBUG_MESSAGE();
   __libc_lock_unlock (free_list_lock);
