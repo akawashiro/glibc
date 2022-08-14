@@ -140,6 +140,8 @@ static bool __malloc_initialized = false;
 
 #define arena_get(ptr, size) do { \
       ptr = thread_arena;						      \
+      RAW_DEBUG_MESSAGE(); \
+      RAW_PUTS_PTR(ptr);  \
       arena_lock (ptr, size);						      \
   } while (0)
 
@@ -315,15 +317,19 @@ static void tcache_key_initialize (void);
 static void
 ptmalloc_init (void)
 {
+  RAW_DEBUG_MESSAGE();
   if (__malloc_initialized)
     return;
 
+  RAW_DEBUG_MESSAGE();
   __malloc_initialized = true;
 
+  RAW_DEBUG_MESSAGE();
 #if USE_TCACHE
   tcache_key_initialize ();
 #endif
 
+  RAW_DEBUG_MESSAGE();
 #ifdef USE_MTAG
   if ((TUNABLE_GET_FULL (glibc, mem, tagging, int32_t, NULL) & 1) != 0)
     {
@@ -347,7 +353,15 @@ ptmalloc_init (void)
     __always_fail_morecore = true;
 #endif
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("&main_arena: ");
+  RAW_PUTS_PTR(&main_arena);
+
   thread_arena = &main_arena;
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
 
   malloc_init_state (&main_arena);
 
@@ -765,6 +779,9 @@ detach_arena (mstate replaced_arena)
 static mstate
 _int_new_arena (size_t size)
 {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   mstate a;
   heap_info *h;
   char *ptr;
@@ -782,6 +799,8 @@ _int_new_arena (size_t size)
         return 0;
     }
   RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   a = h->ar_ptr = (mstate) (h + 1);
   malloc_init_state (a);
   a->attached_threads = 1;
@@ -789,6 +808,8 @@ _int_new_arena (size_t size)
   a->system_mem = a->max_system_mem = h->size;
 
   RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   /* Set up the top chunk, with proper alignment. */
   ptr = (char *) (a + 1);
   misalign = (unsigned long) chunk2mem (ptr) & MALLOC_ALIGN_MASK;
@@ -976,6 +997,9 @@ out:
 static mstate
 arena_get2 (size_t size, mstate avoid_arena)
 {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   mstate a;
 
   static size_t narenas_limit;
@@ -1013,6 +1037,9 @@ arena_get2 (size_t size, mstate avoid_arena)
         {
           if (catomic_compare_and_exchange_bool_acq (&narenas, n + 1, n))
             goto repeat;
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
           a = _int_new_arena (size);
 	  if (__glibc_unlikely (a == NULL))
             catomic_decrement (&narenas);
@@ -1030,6 +1057,9 @@ arena_get2 (size_t size, mstate avoid_arena)
 static mstate
 arena_get_retry (mstate ar_ptr, size_t bytes)
 {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   LIBC_PROBE (memory_arena_retry, 2, bytes, ar_ptr);
   if (ar_ptr != &main_arena)
     {

@@ -2546,6 +2546,7 @@ sysmalloc_mmap_fallback (long int *s, INTERNAL_SIZE_T nb,
 static void *
 sysmalloc (INTERNAL_SIZE_T nb, mstate av)
 {
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   mchunkptr old_top;              /* incoming value of av->top */
   INTERNAL_SIZE_T old_size;       /* its size */
   char *old_end;                  /* its end address */
@@ -2576,6 +2577,7 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
      rather than expanding top.
    */
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   if (av == NULL
       || ((unsigned long) (nb) >= (unsigned long) (mp_.mmap_threshold)
 	  && (mp_.n_mmaps < mp_.n_mmaps_max)))
@@ -2597,12 +2599,14 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
       tried_mmap = true;
     }
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   /* There are no usable arenas and mmap also failed.  */
   if (av == NULL)
     return 0;
 
   /* Record incoming configuration of top */
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   old_top = av->top;
   old_size = chunksize (old_top);
   old_end = (char *) (chunk_at_offset (old_top, old_size));
@@ -2614,15 +2618,18 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
      at least MINSIZE and to have prev_inuse set.
    */
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   assert ((old_top == initial_top (av) && old_size == 0) ||
           ((unsigned long) (old_size) >= MINSIZE &&
            prev_inuse (old_top) &&
            ((unsigned long) old_end & (pagesize - 1)) == 0));
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   /* Precondition: not enough current space to satisfy nb request */
   assert ((unsigned long) (old_size) < (unsigned long) (nb + MINSIZE));
 
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   if (av != &main_arena)
     {
       heap_info *old_heap, *heap;
@@ -2958,8 +2965,11 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
       return chunk2mem (p);
     }
 
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   /* catch all failure paths */
+  // TODO Check!!!
   __set_errno (ENOMEM);
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
   return 0;
 }
 
@@ -3245,6 +3255,7 @@ tcache_init(void)
   victim = _int_malloc (ar_ptr, bytes);
   if (!victim && ar_ptr != NULL)
     {
+      RAW_DEBUG_MESSAGE();
       ar_ptr = arena_get_retry (ar_ptr, bytes);
       victim = _int_malloc (ar_ptr, bytes);
     }
@@ -3285,6 +3296,10 @@ tcache_thread_shutdown (void)
 void *
 __libc_malloc (size_t bytes)
 {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   mstate ar_ptr;
   void *victim;
 
@@ -3323,6 +3338,10 @@ __libc_malloc (size_t bytes)
   DIAG_POP_NEEDS_COMMENT;
 #endif
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   if (SINGLE_THREAD_P)
     {
       victim = tag_new_usable (_int_malloc (&main_arena, bytes));
@@ -3331,14 +3350,27 @@ __libc_malloc (size_t bytes)
       return victim;
     }
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   arena_get (ar_ptr, bytes);
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
   victim = _int_malloc (ar_ptr, bytes);
   /* Retry with another arena only if we were able to find a usable arena
      before.  */
   if (!victim && ar_ptr != NULL)
     {
+      RAW_DEBUG_MESSAGE();
+      RAW_PRINT_STR("thread_arena: ");
+      RAW_PUTS_PTR(thread_arena);
       LIBC_PROBE (memory_malloc_retry, 1, bytes);
+      RAW_DEBUG_MESSAGE();
+      RAW_PRINT_STR("thread_arena: ");
+      RAW_PUTS_PTR(thread_arena);
       ar_ptr = arena_get_retry (ar_ptr, bytes);
       victim = _int_malloc (ar_ptr, bytes);
     }
@@ -3578,6 +3610,7 @@ _mid_memalign (size_t alignment, size_t bytes, void *address)
   if (!p && ar_ptr != NULL)
     {
       LIBC_PROBE (memory_memalign_retry, 2, bytes, alignment);
+      RAW_DEBUG_MESSAGE();
       ar_ptr = arena_get_retry (ar_ptr, bytes);
       p = _int_memalign (ar_ptr, alignment, bytes);
     }
@@ -3693,6 +3726,7 @@ __libc_calloc (size_t n, size_t elem_size)
       if (mem == 0 && av != NULL)
 	{
 	  LIBC_PROBE (memory_calloc_retry, 1, sz);
+      RAW_DEBUG_MESSAGE();
 	  av = arena_get_retry (av, sz);
 	  mem = _int_malloc (av, sz);
 	}
@@ -3776,6 +3810,10 @@ __libc_calloc (size_t n, size_t elem_size)
 static void *
 _int_malloc (mstate av, size_t bytes)
 {
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   INTERNAL_SIZE_T nb;               /* normalized request size */
   unsigned int idx;                 /* associated bin index */
   mbinptr bin;                      /* associated bin */
@@ -3823,6 +3861,10 @@ _int_malloc (mstate av, size_t bytes)
       return p;
     }
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   /*
      If the size qualifies as a fastbin, first check corresponding bin.
      This code is safe to execute even if av is not yet initialized, so we
@@ -3841,6 +3883,10 @@ _int_malloc (mstate av, size_t bytes)
     }							\
   while ((pp = catomic_compare_and_exchange_val_acq (fb, pp, victim)) \
 	 != victim);					\
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
 
   if ((unsigned long) (nb) <= (unsigned long) (get_max_fast ()))
     {
@@ -3896,6 +3942,11 @@ _int_malloc (mstate av, size_t bytes)
 	    }
 	}
     }
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
 
   /*
      If a small request, check regular bin.  Since these "smallbins"
@@ -3972,6 +4023,10 @@ _int_malloc (mstate av, size_t bytes)
         malloc_consolidate (av);
     }
 
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
+
   /*
      Process recently freed or remaindered chunks, taking one only if
      it is exact fit, or, if this a small request, the chunk is remainder from
@@ -3994,6 +4049,8 @@ _int_malloc (mstate av, size_t bytes)
 
   tcache_unsorted_count = 0;
 #endif
+
+  RAW_DEBUG_PTR_MESSAGE(thread_arena);
 
   for (;; )
     {
@@ -4051,6 +4108,7 @@ _int_malloc (mstate av, size_t bytes)
               check_malloced_chunk (av, victim, nb);
               void *p = chunk2mem (victim);
               alloc_perturb (p, bytes);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
               return p;
             }
 
@@ -4059,6 +4117,7 @@ _int_malloc (mstate av, size_t bytes)
             malloc_printerr ("malloc(): corrupted unsorted chunks 3");
           unsorted_chunks (av)->bk = bck;
           bck->fd = unsorted_chunks (av);
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
 
           /* Take now instead of binning if exact fit */
 
@@ -4083,6 +4142,7 @@ _int_malloc (mstate av, size_t bytes)
               check_malloced_chunk (av, victim, nb);
               void *p = chunk2mem (victim);
               alloc_perturb (p, bytes);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
               return p;
 #if USE_TCACHE
 		}
@@ -4156,6 +4216,7 @@ _int_malloc (mstate av, size_t bytes)
           victim->fd = fwd;
           fwd->bk = victim;
           bck->fd = victim;
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
 
 #if USE_TCACHE
       /* If we've processed as many chunks as we're allowed while
@@ -4165,6 +4226,7 @@ _int_malloc (mstate av, size_t bytes)
 	  && mp_.tcache_unsorted_limit > 0
 	  && tcache_unsorted_count > mp_.tcache_unsorted_limit)
 	{
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
 	  return tcache_get (tc_idx);
 	}
 #endif
@@ -4178,6 +4240,7 @@ _int_malloc (mstate av, size_t bytes)
       /* If all the small chunks we found ended up cached, return one now.  */
       if (return_cached)
 	{
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
 	  return tcache_get (tc_idx);
 	}
 #endif
@@ -4245,6 +4308,7 @@ _int_malloc (mstate av, size_t bytes)
               check_malloced_chunk (av, victim, nb);
               void *p = chunk2mem (victim);
               alloc_perturb (p, bytes);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
               return p;
             }
         }
@@ -4353,6 +4417,7 @@ _int_malloc (mstate av, size_t bytes)
               check_malloced_chunk (av, victim, nb);
               void *p = chunk2mem (victim);
               alloc_perturb (p, bytes);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
               return p;
             }
         }
@@ -4391,6 +4456,7 @@ _int_malloc (mstate av, size_t bytes)
           check_malloced_chunk (av, victim, nb);
           void *p = chunk2mem (victim);
           alloc_perturb (p, bytes);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
           return p;
         }
 
@@ -4411,12 +4477,22 @@ _int_malloc (mstate av, size_t bytes)
        */
       else
         {
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
           void *p = sysmalloc (nb, av);
-          if (p != NULL)
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
+          if (p != NULL){
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
             alloc_perturb (p, bytes);
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
+          }
+          RAW_DEBUG_PTR_MESSAGE(thread_arena);
           return p;
         }
     }
+
+  RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("thread_arena: ");
+  RAW_PUTS_PTR(thread_arena);
 }
 
 /*
@@ -4486,6 +4562,7 @@ _int_free (mstate av, mchunkptr p, int have_lock)
 	if (tcache->counts[tc_idx] < mp_.tcache_count)
 	  {
 	    tcache_put (p, tc_idx);
+              RAW_DEBUG_PTR_MESSAGE(thread_arena);
 	    return;
 	  }
       }
