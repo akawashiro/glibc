@@ -3305,6 +3305,13 @@ __libc_malloc (size_t bytes)
 
   MAYBE_INIT_TCACHE ();
 
+  RAW_PRINT_STR("tcache: ");
+  RAW_PRINT_PTR(tcache);
+  RAW_PRINT_STR("\n");
+  RAW_PRINT_STR("tcache->counts: ");
+  RAW_PRINT_PTR(tcache->counts);
+  RAW_PRINT_STR("\n");
+
   DIAG_PUSH_NEEDS_COMMENT;
   if (tc_idx < mp_.tcache_bins
       && tcache

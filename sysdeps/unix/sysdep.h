@@ -112,7 +112,9 @@
 /* All cancellation points are compiled out in the dynamic loader.  */
 # define NO_SYSCALL_CANCEL_CHECKING 1
 #else
-# define NO_SYSCALL_CANCEL_CHECKING SINGLE_THREAD_P
+/* # define NO_SYSCALL_CANCEL_CHECKING SINGLE_THREAD_P */
+/* TODO */
+# define NO_SYSCALL_CANCEL_CHECKING 1
 #endif
 
 #define SYSCALL_CANCEL(...) \

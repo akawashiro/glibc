@@ -96,6 +96,7 @@ extern int sanity_check_heap_info_alignment[(sizeof (heap_info)
 
 /* Thread specific data.  */
 
+// TODO: Check this
 static __thread mstate thread_arena attribute_tls_model_ie;
 
 /* Arena free list.  free_list_lock synchronizes access to the
@@ -773,12 +774,14 @@ _int_new_arena (size_t size)
       if (!h)
         return 0;
     }
+  RAW_DEBUG_MESSAGE();
   a = h->ar_ptr = (mstate) (h + 1);
   malloc_init_state (a);
   a->attached_threads = 1;
   /*a->next = NULL;*/
   a->system_mem = a->max_system_mem = h->size;
 
+  RAW_DEBUG_MESSAGE();
   /* Set up the top chunk, with proper alignment. */
   ptr = (char *) (a + 1);
   misalign = (unsigned long) chunk2mem (ptr) & MALLOC_ALIGN_MASK;
@@ -787,6 +790,7 @@ _int_new_arena (size_t size)
   top (a) = (mchunkptr) ptr;
   set_head (top (a), (((char *) h + h->size) - ptr) | PREV_INUSE);
 
+  RAW_DEBUG_MESSAGE();
   LIBC_PROBE (memory_arena_new, 2, a, size);
   mstate replaced_arena = thread_arena;
   thread_arena = a;
@@ -794,6 +798,7 @@ _int_new_arena (size_t size)
 
   __libc_lock_lock (list_lock);
 
+  RAW_DEBUG_MESSAGE();
   /* Add the new arena to the global list.  */
   a->next = main_arena.next;
   /* FIXME: The barrier is an attempt to synchronize with read access
@@ -802,12 +807,17 @@ _int_new_arena (size_t size)
   atomic_write_barrier ();
   main_arena.next = a;
 
+  RAW_DEBUG_MESSAGE();
   __libc_lock_unlock (list_lock);
+  RAW_DEBUG_MESSAGE();
 
   __libc_lock_lock (free_list_lock);
+  RAW_DEBUG_MESSAGE();
   detach_arena (replaced_arena);
+  RAW_DEBUG_MESSAGE();
   __libc_lock_unlock (free_list_lock);
 
+  RAW_DEBUG_MESSAGE();
   /* Lock this arena.  NB: Another thread may have been attached to
      this arena because the arena is now accessible from the
      main_arena.next list and could have been picked by reused_arena.
@@ -818,6 +828,7 @@ _int_new_arena (size_t size)
      but this could result in a deadlock with
      __malloc_fork_lock_parent.  */
 
+  RAW_DEBUG_MESSAGE();
   __libc_lock_lock (a->mutex);
 
   return a;

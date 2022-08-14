@@ -31,9 +31,15 @@
 int
 __pthread_enable_asynccancel (void)
 {
+    // RAW_BREAK();
   struct pthread *self = THREAD_SELF;
   RAW_DEBUG_MESSAGE();
+  RAW_PRINT_STR("&self: ");
+  RAW_PRINT_PTR(&self);
+  RAW_PRINT_STR("\n");
+  RAW_PRINT_STR("&self->cancelhandling: ");
   RAW_PRINT_PTR(&self->cancelhandling);
+  RAW_PRINT_STR("\n");
   int oldval = atomic_load_relaxed (&self->cancelhandling);
 
   while (1)
@@ -65,6 +71,8 @@ libc_hidden_def (__pthread_enable_asynccancel)
 void
 __pthread_disable_asynccancel (int oldtype)
 {
+    RAW_DEBUG_MESSAGE();
+    return;
   /* If asynchronous cancellation was enabled before we do not have
      anything to do.  */
   if (oldtype & CANCELTYPE_BITMASK)
