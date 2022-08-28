@@ -4464,6 +4464,7 @@ _int_malloc (mstate av, size_t bytes)
 
       RAW_DEBUG_HEX_MESSAGE(size);
       RAW_DEBUG_HEX_MESSAGE(av->system_mem);
+      // TODO: Commenting out this check enable us to use printf(3) with corrupted outputs.
       if (__glibc_unlikely (size > av->system_mem)){
         RAW_DEBUG_MESSAGE();
         malloc_printerr ("malloc(): corrupted top size");
