@@ -353,9 +353,7 @@ ptmalloc_init (void)
     __always_fail_morecore = true;
 #endif
 
-  RAW_DEBUG_MESSAGE();
-  RAW_PRINT_STR("&main_arena: ");
-  RAW_PUTS_PTR(&main_arena);
+  RAW_DEBUG_PTR_MESSAGE(&main_arena);
 
   thread_arena = &main_arena;
 

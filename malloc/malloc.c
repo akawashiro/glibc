@@ -2966,6 +2966,13 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
     }
 
   RAW_DEBUG_PTR_MESSAGE(thread_arena);
+  RAW_DEBUG_PTR_MESSAGE(&thread_arena);
+  RAW_DEBUG_PTR_MESSAGE(errno);
+  RAW_DEBUG_PTR_MESSAGE(&errno);
+  // RAW_BREAK();
+  int errno_copy = errno;
+  RAW_UNIQ_NOP();
+  RAW_DEBUG_PTR_MESSAGE(&errno_copy);
   /* catch all failure paths */
   // TODO Check!!!
   __set_errno (ENOMEM);
@@ -4054,9 +4061,12 @@ _int_malloc (mstate av, size_t bytes)
 
   for (;; )
     {
+        RAW_DEBUG_MESSAGE();
       int iters = 0;
+        RAW_DEBUG_MESSAGE();
       while ((victim = unsorted_chunks (av)->bk) != unsorted_chunks (av))
         {
+            RAW_DEBUG_MESSAGE();
           bck = victim->bk;
           size = chunksize (victim);
           mchunkptr next = chunk_at_offset (victim, size);
@@ -4235,6 +4245,8 @@ _int_malloc (mstate av, size_t bytes)
           if (++iters >= MAX_ITERS)
             break;
         }
+        RAW_DEBUG_MESSAGE();
+        // RAW_BREAK();
 
 #if USE_TCACHE
       /* If all the small chunks we found ended up cached, return one now.  */
@@ -4332,30 +4344,37 @@ _int_malloc (mstate av, size_t bytes)
 
       for (;; )
         {
+            RAW_DEBUG_MESSAGE();
           /* Skip rest of block if there are no more set bits in this block.  */
           if (bit > map || bit == 0)
             {
               do
                 {
+            RAW_DEBUG_MESSAGE();
                   if (++block >= BINMAPSIZE) /* out of bins */
                     goto use_top;
                 }
               while ((map = av->binmap[block]) == 0);
 
+            RAW_DEBUG_MESSAGE();
               bin = bin_at (av, (block << BINMAPSHIFT));
+            RAW_DEBUG_MESSAGE();
               bit = 1;
             }
 
           /* Advance to bin with set bit. There must be one. */
           while ((bit & map) == 0)
             {
+            RAW_DEBUG_MESSAGE();
               bin = next_bin (bin);
               bit <<= 1;
               assert (bit != 0);
             }
 
+            RAW_DEBUG_MESSAGE();
           /* Inspect the bin. It is likely to be non-empty */
           victim = last (bin);
+            RAW_DEBUG_MESSAGE();
 
           /*  If a false alarm (empty bin), clear the bit. */
           if (victim == bin)
@@ -4438,14 +4457,22 @@ _int_malloc (mstate av, size_t bytes)
          to put in fenceposts in sysmalloc.)
        */
 
+      RAW_DEBUG_MESSAGE();
       victim = av->top;
       size = chunksize (victim);
+      RAW_DEBUG_MESSAGE();
 
-      if (__glibc_unlikely (size > av->system_mem))
+      RAW_DEBUG_HEX_MESSAGE(size);
+      RAW_DEBUG_HEX_MESSAGE(av->system_mem);
+      if (__glibc_unlikely (size > av->system_mem)){
+        RAW_DEBUG_MESSAGE();
         malloc_printerr ("malloc(): corrupted top size");
+      }
 
+      RAW_DEBUG_MESSAGE();
       if ((unsigned long) (size) >= (unsigned long) (nb + MINSIZE))
         {
+      RAW_DEBUG_MESSAGE();
           remainder_size = size - nb;
           remainder = chunk_at_offset (victim, nb);
           av->top = remainder;
@@ -4464,6 +4491,7 @@ _int_malloc (mstate av, size_t bytes)
          here for all block sizes.  */
       else if (atomic_load_relaxed (&av->have_fastchunks))
         {
+      RAW_DEBUG_MESSAGE();
           malloc_consolidate (av);
           /* restore original bin index */
           if (in_smallbin_range (nb))
@@ -4488,6 +4516,7 @@ _int_malloc (mstate av, size_t bytes)
           RAW_DEBUG_PTR_MESSAGE(thread_arena);
           return p;
         }
+      RAW_DEBUG_MESSAGE();
     }
 
   RAW_DEBUG_MESSAGE();
@@ -5744,6 +5773,8 @@ extern char **__libc_argv attribute_hidden;
 static void
 malloc_printerr (const char *str)
 {
+    // TODO: If we reach here, something broke.
+    RAW_DEBUG_MESSAGE();
 #if IS_IN (libc)
   __libc_message (do_abort, "%s\n", str);
 #else
