@@ -608,6 +608,12 @@ _dl_allocate_tls_init (void *result, bool init_tls)
 	  memset (__mempcpy (dest, map->l_tls_initimage,
 			     map->l_tls_initimage_size), '\0',
 		  map->l_tls_blocksize - map->l_tls_initimage_size);
+      _dl_printf("The first 8bytes of map->l_tls_initimage is %lx\n", *((unsigned long*)(map->l_tls_initimage)));
+      if(*((unsigned long*)map->l_tls_initimage) == 0xaabbccddaabbccdd){
+          _dl_printf("Replace the first 8bytes of map->l_tls_initimage with 0x1122334455667788\n");
+          *((unsigned long*)dest) = 0x1122334455667788;
+      }
+
 	}
 
       total += cnt;
